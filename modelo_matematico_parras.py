@@ -7,23 +7,29 @@
 # Bibliotecas 
 import pyomo.environ as pyo
 import numpy as np
-import time
 from pyomo.environ import *
 from pyomo.opt import SolverFactory
 import pandas as pd
 import wntr
 
-
-# Leitura das variáveis de entrada
-
 # Create a water network model
-inp_file = 'vanzyl.inp'
-wn = wntr.network.WaterNetworkModel(inp_file)
+inp_file = 'rede.inp'
+wn = wntr.network.WaterNetworkModel('rede.inp')
+
 #sim = wntr.sim.EpanetSimulator(wn)
 #results = sim.run_sim()
 
-elementos = wntr.network.elements
+#elementos = wntr.network.elements
 
+# Leitura das variáveis de entrada
+
+# Variáveis
+qnt_reservatorio = 0
+qnt_eta = 0
+
+#tempo é dado em segundos
+duracao = wn.options.time.duration
+print('duracao em segundos: ',duracao)
 
 # Restrições
 
@@ -43,6 +49,16 @@ elementos = wntr.network.elements
 
 
 # 2. Restrições para cálculo da demanda contratada
+
+#   somatório da quantidade de reservatórios de nível fixo 
+for  reservoir in wn.reservoirs():
+    qnt_reservatorio += 1
+print("quantidade de reservatorios de nível fixo: ", qnt_reservatorio)
+#   somatório da quantidade de estação(ões) de tratamento
+#for tank, tanque in wn.tanks():
+#    print(tanque.name)
+qnt_eta = 1
+tempo = duracao / 3600
 
 
 # 3. Cálculo do volume de água nos reservatórios
@@ -65,6 +81,7 @@ elementos = wntr.network.elements
 
 # 1. Somatório de pontos de captacação superfícial
 
+
 # 2. Somatório de estações de tratamento (ETA)
 
 # 3. Somatório de bombas de captação (nc) 
@@ -86,16 +103,16 @@ elementos = wntr.network.elements
 
 # Teste com a biblioteca do EPANET
 
-for reservoir_name, reservoir in wn.reservoirs():
-    id_reserv = reservoir.name
+#for reservoir_name, reservoir in wn.reservoirs():
+#    id_reserv = reservoir.name
     
-for pipe_name, pipe in wn.pipe():
-    print(pipe.name)
+#for pipe_name, pipe in wn.pipe():
+#    print(pipe.name)
 
-print(Hpe)
+#print(Hpe)
          
 # pega o nome do elemento
-wn.get_link(id_reserv)
+#wn.get_link(id_reserv)
 
 
 
