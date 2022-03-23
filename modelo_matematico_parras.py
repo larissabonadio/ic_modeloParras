@@ -15,6 +15,7 @@ import wntr
 # Criando o modelo de rede
 inp_file = 'rede.inp'
 wn = wntr.network.WaterNetworkModel('rede.inp')
+we = wntr.network.elements
 
 # Leitura das variáveis de entrada
 tempo_total = wn.options.time.duration # Em segundos
@@ -28,13 +29,25 @@ eta_altura = 0
 #   Informações sobre os reservatórios de nível fixo: 
 for  reservoir, reservatorio in wn.reservoirs():
     qt_reservatorio += 1
+    id_reservatorio = reservatorio
     
 #   Informações sobre a(s) estação(ões) de tratamento:
 for tank, tanque in wn.tanks():
     if tanque.name == '3':
         eta_altura = tanque.elevation 
         qt_eta += 1
-        
+        id_eta = tanque
+
+#   Verifica se o reservatório de nível fixo esta ligada a uma bomba - verificar os Node1 e 2
+for pumps, bomba in wn.pumps():
+    if str(bomba.start_node_name) == str(id_reservatorio):
+        print('o nó inicial dessa bomba está conectado com o RNF')
+        no_inicial = bomba.start_node_name
+    if str(bomba.end_node_name) == str(id_reservatorio):
+        print('o nó final dessa bomba está conectado com o RNF')
+        no_final = bomba.end_node_name
+    
+# Informações sobre a(s) bomba(s) ligada(s) ao reservatório fixo        
     
 
 # 1. Restrições de Potência 
@@ -42,6 +55,7 @@ for tank, tanque in wn.tanks():
 #   PC - Potência consumida pela(s) bomba(s) de captação de ponto(s) de superficia(is)
 
 #   Fator de Atrito de Darcy-Weisbach
+
 
 #   Comprimento da tubulação:
 
@@ -62,10 +76,9 @@ for tank, tanque in wn.tanks():
 # 2. Restrições para cálculo da demanda contratada
 
 
-# tem que ver como vamos identificar qual tanque é classificado como estação de tratamento de água
-
 #   total de horas simuladas
 #tempo = duracao / 3600
+
 #   somatório da quantidade de bombas de captação de ponto superficial que estão conectados ao ETA 
 # verificar a quantidade de bomba que tenho entre os reservatórios físicos e o eta
 # posso verificar a partir da coluno Node1 e Node2 se eles estão inteligados pela bomba;
