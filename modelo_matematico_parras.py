@@ -15,7 +15,6 @@ import wntr
 # Criando o modelo de rede
 inp_file = 'rede.inp'
 wn = wntr.network.WaterNetworkModel('rede.inp')
-we = wntr.network.elements
 
 # Leitura das variáveis de entrada
 tempo_total = wn.options.time.duration # Em segundos
@@ -54,14 +53,6 @@ for pumps, bomba in wn.pumps():
 
 #   PC - Potência consumida pela(s) bomba(s) de captação de ponto(s) de superficia(is)
 
-#   Fator de Atrito de Darcy-Weisbach
-
-
-#   Comprimento da tubulação:
-
-#   Diametro da tubulação:
-
-
 
 #   PN - Potência consumida pela(s) bomba(s) de captação de ponto(s) de subterrâneo(s)
 
@@ -72,16 +63,8 @@ for pumps, bomba in wn.pumps():
 #   PT - Potência consumida pela(s) bomba(s) de captação de ponto(s) de transferência
 
 
-
 # 2. Restrições para cálculo da demanda contratada
 
-
-#   total de horas simuladas
-#tempo = duracao / 3600
-
-#   somatório da quantidade de bombas de captação de ponto superficial que estão conectados ao ETA 
-# verificar a quantidade de bomba que tenho entre os reservatórios físicos e o eta
-# posso verificar a partir da coluno Node1 e Node2 se eles estão inteligados pela bomba;
 
 # 3. Cálculo do volume de água nos reservatórios
 
@@ -98,18 +81,15 @@ for pumps, bomba in wn.pumps():
 # 7. Restrições para os acionamentos das bombas
 
  
-
 # Função Objetivo
 
 # 1. Somatório de pontos de captacação superfícial
-
 
 # 2. Somatório de estações de tratamento (ETA)
 
 # 3. Somatório de bombas de captação (nc) 
 
 # 4. Somatório do periodo de simulação
-
 
 
 # Resolvendo o modelo com CPLEX
@@ -121,6 +101,3 @@ for pumps, bomba in wn.pumps():
 
 # Escrevendo as regras no arquivo INP da rede
 
-
-
-# Teste com a biblioteca do EPANET

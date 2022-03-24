@@ -1,13 +1,13 @@
 [TITLE]
-
+rede Test Instance
 
 [JUNCTIONS]
 ;ID              	Elev        	Demand      	Pattern         
  2               	90          	0           	                	;
  4               	90          	0           	                	;
  5               	90          	0           	                	;
- 9               	93          	1           	Demandanó9      	;
- 10              	80          	1           	Demandanó10     	;
+ 9               	93          	1           	Demandano9      	;
+ 10              	80          	1           	Demandano10     	;
  8               	100         	0           	                	;
  11              	120         	0           	                	;
  12              	120         	0           	                	;
@@ -20,7 +20,7 @@
 ;ID              	Elevation   	InitLevel   	MinLevel    	MaxLevel    	Diameter    	MinVol      	VolCurve
  6               	100         	5           	5           	16.75       	17          	0           	                	;
  7               	120         	0.635       	0.634       	6.34        	6.34        	0           	                	;
- 3               	90          	0           	0           	1.6         	20          	0           	                	;
+ 3               	90          	0           	0           	1.6         	20          	0           	                	;ETA
 
 [PIPES]
 ;ID              	Node1           	Node2           	Length      	Diameter    	Roughness   	MinorLoss   	Status
@@ -30,17 +30,17 @@
  13              	7               	9               	1000        	290         	0.019       	0           	Open  	;
  14              	9               	10              	1000        	290         	0.019       	0           	Open  	;
  10              	8               	7               	100         	100         	0.025       	0           	Open  	;
- 6               	2               	3               	150         	200         	0.020       	0           	Open  	;
+ 6               	2               	3               	150         	200         	0.020       	0           	Open  	;superficie para eta
  15              	11              	6               	99.9        	100         	0.025       	0           	Open  	;
  16              	7               	12              	0.1         	100         	0.025       	0           	Open  	;
 
 [PUMPS]
 ;ID              	Node1           	Node2           	Parameters
- 1               	1               	2               	HEAD BombasCaptação	;
- 2               	1               	2               	HEAD BombasCaptação	;
+ 1               	1               	2               	HEAD BombasCaptacao	;
+ 2               	1               	2               	HEAD BombasCaptacao	;
  9               	6               	8               	HEAD BombaTransferencia	;
- 3               	3               	4               	HEAD BombasElevação	;
- 4               	3               	4               	HEAD BombasElevação	;
+ 3               	3               	4               	HEAD BombasElevacao	;
+ 4               	3               	4               	HEAD BombasElevacao	;
  5               	3               	5               	HEAD BombaResElevado	;
 
 [VALVES]
@@ -57,34 +57,33 @@
 
 [PATTERNS]
 ;ID              	Multipliers
-;Fator multiplicativo referente a demanda do nó 9
- Demandanó9      	50          	80          	90          	100         	100         	130         
- Demandanó9      	150         	180         	180         	190         	200         	200         
- Demandanó9      	170         	150         	140         	160         	170         	190         
- Demandanó9      	270         	265         	285         	180         	190         	100         
-;Fator multiplicativo referente a demanda do nó 10
- Demandanó10     	20          	20          	25          	40          	45          	35          
- Demandanó10     	40          	35          	40          	30          	40          	45          
- Demandanó10     	35          	25          	30          	40          	50          	45          
- Demandanó10     	63          	65          	68          	30          	40          	30          
-;Preço da energia kWh
- PreçokWh        	0.20        	0.20        	0.20        	0.20        	0.20        	0.20        
- PreçokWh        	0.20        	0.20        	0.20        	0.20        	0.20        	0.20        
- PreçokWh        	0.20        	0.20        	0.20        	0.20        	0.20        	0.20        
- PreçokWh        	0.60        	0.60        	0.60        	0.20        	0.20        	0.20        
+;Fator multiplicativo referente a demanda do no 9
+ Demandano9      	50          	80          	90          	100         	100         	130         
+ Demandano9      	150         	180         	180         	190         	200         	200         
+ Demandano9      	170         	150         	140         	160         	170         	190         
+ Demandano9      	270         	265         	285         	180         	190         	100         
+;Fator multiplicativo referente a demanda do no 10
+ Demandano10     	20          	20          	25          	40          	45          	35          
+ Demandano10     	40          	35          	40          	30          	40          	45          
+ Demandano10     	35          	25          	30          	40          	50          	45          
+ Demandano10     	63          	65          	68          	30          	40          	30          
+;Preco da energia kWh
+ PrecokWh        	0.20        	0.20        	0.20        	0.20        	0.20        	0.20        
+ PrecokWh        	0.20        	0.20        	0.20        	0.20        	0.20        	0.20        
+ PrecokWh        	0.20        	0.20        	0.20        	0.20        	0.20        	0.20        
+ PrecokWh        	0.60        	0.60        	0.60        	0.20        	0.20        	0.20        
 
 [CURVES]
 ;ID              	X-Value     	Y-Value
-;BOMBA: Curva das bombas de captação
- BombasCaptação  	250         	4           
-;BOMBA: Curva das 2 bombas de elevação reservatório apoiado
- BombasElevação  	150         	21          
-;BOMBA: Curva da bomba de transferência entre os reservatórios
+;PUMP: BOMBA: BOMBA: Curva das bombas de captacao
+ BombasCaptacao  	250         	4           
+;PUMP: BOMBA: BOMBA: Curva das 2 bombas de elevacao reservatorio apoiado
+ BombasElevacao  	150         	21          
+;PUMP: PUMP: BOMBA: Curva da bomba de transferencia entre os reservatorios
  BombaTransferencia	50          	4           
-;BOMBA: Curva da bomba de elevação reservatório elevado
+;PUMP: PUMP: BOMBA: Curva da bomba de elevacao reservatorio elevado
  BombaResElevado 	150         	35          
 
-/* DESCONSIDERAR */
 [CONTROLS]
 PUMP 1 CLOSED AT CLOCKTIME 5:30 PM
 PUMP 2 CLOSED AT CLOCKTIME 2 AM
@@ -109,25 +108,28 @@ LINK 16 OPEN AT CLOCKTIME 5 PM
 LINK 16 CLOSED AT CLOCKTIME 6 PM
 
 
+
+
 [RULES]
 
+
+
 [ENERGY]
-/* rendimento */ --> % / 100
  Global Efficiency  	60
  Global Price       	0
  Demand Charge      	0
  Pump 	1               	Price     	1
- Pump 	1               	Pattern   	PreçokWh
+ Pump 	1               	Pattern   	PrecokWh
  Pump 	2               	Price     	1
- Pump 	2               	Pattern   	PreçokWh
+ Pump 	2               	Pattern   	PrecokWh
  Pump 	9               	Price     	1
- Pump 	9               	Pattern   	PreçokWh
+ Pump 	9               	Pattern   	PrecokWh
  Pump 	3               	Price     	1
- Pump 	3               	Pattern   	PreçokWh
+ Pump 	3               	Pattern   	PrecokWh
  Pump 	4               	Price     	1
- Pump 	4               	Pattern   	PreçokWh
+ Pump 	4               	Pattern   	PrecokWh
  Pump 	5               	Price     	1
- Pump 	5               	Pattern   	PreçokWh
+ Pump 	5               	Pattern   	PrecokWh
 
 [EMITTERS]
 ;Junction        	Coefficient
@@ -155,15 +157,15 @@ LINK 16 CLOSED AT CLOCKTIME 6 PM
 ;Tank            	Model
 
 [TIMES]
- Duration           	24:00
- Hydraulic Timestep 	1:00
- Quality Timestep   	0:05
- Pattern Timestep   	1:00
- Pattern Start      	0:00
- Report Timestep    	1:00
- Report Start       	0:00
+ Duration           	24:00 
+ Hydraulic Timestep 	1:00 
+ Quality Timestep   	0:05 
+ Pattern Timestep   	1:00 
+ Pattern Start      	0:00 
+ Report Timestep    	1:00 
+ Report Start       	0:00 
  Start ClockTime    	0:00
- Statistic          	None
+ Statistic          	NONE
 
 [REPORT]
  Status             	No
@@ -177,7 +179,7 @@ LINK 16 CLOSED AT CLOCKTIME 6 PM
  Viscosity          	1
  Trials             	40
  Accuracy           	0.001
- CHECKFREQ          	2
+ CHECKFREQ          	10
  MAXCHECK           	10
  DAMPLIMIT          	0
  Unbalanced         	Continue 10
@@ -230,7 +232,7 @@ LINK 16 CLOSED AT CLOCKTIME 6 PM
 
 [LABELS]
 ;X-Coord           Y-Coord          Label & Anchor Node
- 4077.39          7965.36          "TUBULAÇÃO NOVA"                 
+ 4077.39          7965.36          "TUBULACAO NOVA"                 
 
 [BACKDROP]
  DIMENSIONS     	0.00            	0.00            	10000.00        	10000.00        
