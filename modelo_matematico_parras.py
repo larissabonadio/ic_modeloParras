@@ -44,7 +44,7 @@ def tipo_elemento (id_elemento):
     for i, valvula in wn.valves():
         if id_elemento == str(valvula.name):
             return 'VALVULA'
-
+        
 #   Função que define a altura geométrica
 def altura_geometrica (cota1, cota2):
     return cota1 - cota2
@@ -100,14 +100,24 @@ def diametro_tubulacao(id_trecho):
         if (str(trecho) == str(id_trecho)):
             return trecho.diameter
 
+#   Função que identifica a curva a partir do nome e retorna a vazão
+def identifica_curva(nome_curva):
+    for curve, curva in wn.curves():
+        if nome_curva == curva.name:
+            return float(curva.points[0][0])
+    
 #   Função que retorna a vazão de uma bomba
 def vazao_bomba(node1):
     for pump, bomba in wn.pumps():
-        if(bomba.start_node_name == str(node1)):
-            print(bomba)
-    
-
-    
+        if bomba.start_node_name == str(node1):
+            # A partir do ID da bomba acha o nome da curva usada na bomba
+            return 3600 * identifica_curva(bomba.pump_curve_name) 
+        
+#   Função que retorna a velocidade de escoamento
+def velocidade(diamentro, vazao):
+    a = np.pi * pow(diamentro, 2) / 4
+    return (vazao / 3600) / a
+   
 #   Função que retorna o valor em decimal do rendimento / eficiência da bomba   
 def rendimento_bomba(id_bomba):
     return wn.options.energy.global_efficiency / 100 
@@ -120,13 +130,7 @@ qt_reservatorio = 0
 qt_eta = 0
 g = 9.81
 eta_altura = 0
-Hpe = 0
-Fpe = 0
-Npe = 0
-Lpe = 0
-Dpe = 0
-Qpe = 0
-Vpe = 0
+Pc = 0.0
 
 #   Informações sobre os reservatórios de nível fixo: 
 for  reservoir, reservatorio in wn.reservoirs():
@@ -143,15 +147,19 @@ for tank, tanque in wn.tanks():
 # 1. Restrições de Potência 
 
 #   PC - Potência consumida pela(s) bomba(s) de captação de ponto(s) de superficia(is)
-
-Hpe += altura_geometrica(reservatorio.base_head, id_eta.elevation)
-Fpe += fator_atrito_dw('CAPTACAO', 'NOVA')
-Lpe = comprimento_tubulacao(verifica_ligacao(id_reservatorio))
-Dpe += diametro_tubulacao(verifica_ligacao(id_reservatorio))
-#Vpe += velocidade_escoamento()
-Qpe = vazao_bomba(id_reservatorio)
-Npe += rendimento_bomba(2)
-
+#   Verifica dada bomba, se ela estiver ligada a ao reservatório então calcula a PC
+for pump, bomba in wn.pumps():
+    if str(id_reservatorio) == bomba.start_node_name:
+        Hpe = altura_geometrica(reservatorio.base_head, id_eta.elevation)
+        Fpe = fator_atrito_dw('CAPTACAO', 'NOVA')
+        Lpe = comprimento_tubulacao(verifica_ligacao(id_reservatorio))
+        Dpe = diametro_tubulacao(verifica_ligacao(id_reservatorio))
+        Qpe = vazao_bomba(id_reservatorio)
+        Vpe = velocidade(Dpe, Qpe)
+        Npe = rendimento_bomba(2)
+        Pc += (Hpe + (Fpe * (Lpe / Dpe) * (pow(Vpe, 2) / 2 * g))) * Qpe * 0.735499 / 270 * Npe
+print('Potencia consumida pelas bombas de captação superficial: ', Pc)        
+        
 #   PN - Potência consumida pela(s) bomba(s) de captação de ponto(s) de subterrâneo(s)
 
 
@@ -198,7 +206,6 @@ Npe += rendimento_bomba(2)
 # 3. Somatório de bombas de captação (nc) 
 
 # 4. Somatório do periodo de simulação
-
 
 # Resolvendo o modelo com CPLEX
 
