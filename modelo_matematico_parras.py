@@ -46,7 +46,20 @@ def tipo_elemento (id_elemento):
             return 'VALVULA'
         
 #   Função que define a altura geométrica
-def altura_geometrica (cota1, cota2):
+def altura_geometrica (node1, node2):
+    if tipo_elemento(str(node1)) == 'RESERVATORIO':
+        cota1 = node1.base_head
+    else:
+        for tank, tanque in wn.tanks():
+            if tanque.name == str(node1):
+                cota1 = tanque.elevation
+        
+    if tipo_elemento(str(node2)) == 'RESERVATORIO':
+        cota2 = node2.base_head
+    else:
+        for tank, tanque in wn.tanks():
+            if tanque.name == str(node2):
+                cota2 = tanque.elevation
     return cota1 - cota2
 
 #   Função que define o valor do fator de atrito de Darcy–Weisbach
@@ -73,31 +86,33 @@ def fator_atrito_dw(tipo_bomba, tipo_tubulacao):
             return 0.046  
         
 #   Função que a partir de um elemento percorre a rede (em sequência) para encontrar um trecho (para assim pegar as informações de comprimento, diamentro e rugosidade)
-def verifica_ligacao(node1): 
+def verifica_ligacao(node1, elemento):
     node1 = str(node1)
-    if tipo_elemento(node1) == 'TRECHO':
-        return node1
-    # Se for esses tipos de elementos eles só serão o nó de inicio / final
-    if tipo_elemento(node1) == 'RESERVATORIO' or tipo_elemento(node1) == 'TANQUE' or tipo_elemento(node1) == 'NO':
+   
+    if tipo_elemento(node1) == 'RESERVATORIO' or tipo_elemento(node1) == 'TANQUE':
         for pump, bomba in wn.pumps():
-            if bomba.start_node_name == str(node1):
+            if bomba.start_node_name == node1 and elemento == bomba:
                 node1 = bomba.end_node_name
-                verifica_ligacao(node1)
+                node2 = verifica_ligacao(node1, elemento)
+                
+                return node1, node2
+                
+    if tipo_elemento(node1) == 'NO':
         for pipe, trecho in wn.pipes():
-            if trecho.start_node_name == str(node1):
-                node1 = trecho
-                return node1 
+            if trecho.start_node_name == node1:
+                if tipo_elemento(trecho.end_node_name) == 'TANQUE':                
+                    return trecho.end_node_name
 
 #   Função que retorna o comprimenro da tubulação especificada (em metros)
-def comprimento_tubulacao(id_trecho):
+def comprimento_tubulacao(node):
     for pipe, trecho in wn.pipes():
-        if (str(trecho) == str(id_trecho)):
-            return trecho.length    
+        if trecho.start_node_name == str(node[0]) and trecho.end_node_name == str(node[1]):
+            return trecho.length
         
 #   Função que retorna o diametro da tubulação especificada (em metros)
-def diametro_tubulacao(id_trecho):
+def diametro_tubulacao(node):
     for pipe, trecho in wn.pipes():
-        if (str(trecho) == str(id_trecho)):
+        if trecho.start_node_name == str(node[0]) and trecho.end_node_name == str(node[1]):
             return trecho.diameter
 
 #   Função que identifica a curva a partir do nome e retorna a vazão
@@ -131,54 +146,66 @@ qt_eta = 0
 g = 9.81
 eta_altura = 0
 Pc = 0.0
+Pe = 0.0
+Pt = 0.0
 
 #   Informações sobre os reservatórios de nível fixo: 
 for  reservoir, reservatorio in wn.reservoirs():
     qt_reservatorio += 1
-    id_reservatorio = reservatorio
-        
-#   Informações sobre a(s) estação(ões) de tratamento:
+    id_reservatorio = reservatorio   
+
 for tank, tanque in wn.tanks():
-#    Coloquei 3 pq sei que representa a ETA
-    if tanque.name == '6':        
-        qt_eta += 1
-        id_eta = tanque    
+    if(tanque.name == '6'):
+        id_eta = tanque
 
 # 1. Restrições de Potência 
 
 #   PC - Potência consumida pela(s) bomba(s) de captação de ponto(s) de superficia(is)
-#   Verifica dada bomba, se ela estiver ligada a ao reservatório então calcula a PC
 for pump, bomba in wn.pumps():
     if str(id_reservatorio) == bomba.start_node_name:
-        Hpe = altura_geometrica(reservatorio.base_head, id_eta.elevation)
+        Hpe = altura_geometrica(reservatorio, id_eta)
         Fpe = fator_atrito_dw('CAPTACAO', 'NOVA')
-        Lpe = comprimento_tubulacao(verifica_ligacao(id_reservatorio))
-        Dpe = diametro_tubulacao(verifica_ligacao(id_reservatorio))
+        Lpe = comprimento_tubulacao(verifica_ligacao(id_reservatorio, bomba))
+        Dpe = diametro_tubulacao(verifica_ligacao(id_reservatorio, bomba))
         Qpe = vazao_bomba(id_reservatorio)
         Vpe = velocidade(Dpe, Qpe)
-        Npe = rendimento_bomba(2)
+        Npe = rendimento_bomba(bomba)
         Pc += (Hpe + (Fpe * (Lpe / Dpe) * (pow(Vpe, 2) / 2 * g))) * Qpe * 0.735499 / 270 * Npe
-print('Potencia consumida pelas bombas de captação superficial: ', Pc)        
         
 #   PN - Potência consumida pela(s) bomba(s) de captação de ponto(s) de subterrâneo(s)
 
 
 #   PE - Potência consumida pela(s) bomba(s) de captação de ponto(s) de elevação
-
-
+for pump, bomba in wn.pumps():
+    if str(id_eta) == bomba.start_node_name:
+        Her = altura_geometrica(id_eta, verifica_ligacao(id_eta, bomba)[1])
+        Fer = fator_atrito_dw('ELEVACAO', 'NOVA')
+        Ler = comprimento_tubulacao(verifica_ligacao(id_eta, bomba))
+        Der = diametro_tubulacao(verifica_ligacao(id_eta, bomba))
+        Qer = vazao_bomba(id_eta)
+        Ver = velocidade(Der, Qer)
+        Ner = rendimento_bomba(bomba)
+        Pe += (Her + (Fer * (Ler / Der) * (pow(Ver, 2) / 2 * g))) * Qer * 0.735499 / 270 * Ner
+        
 #   PT - Potência consumida pela(s) bomba(s) de captação de ponto(s) de transferência
+for tank, tanque in wn.tanks():
+    for pump, bomba in wn.pumps():
+        if bomba.start_node_name == str(tanque) and tanque != id_eta:
+            Hrj = altura_geometrica(tanque, verifica_ligacao(tanque, bomba)[1])
+            Frj = fator_atrito_dw('TRANSFERENCIA', 'NOVA')
+            Lrj = comprimento_tubulacao(verifica_ligacao(tanque, bomba))
+            Drj = diametro_tubulacao(verifica_ligacao(tanque, bomba))
+            Qrj = vazao_bomba(tanque)
+            Vrj = velocidade(Drj, Qrj)
+            Nrj = rendimento_bomba(bomba)            
+            Pt += (Hrj + (Frj * (Lrj / Drj) * (pow(Vrj, 2) / 2 * g))) * Qrj * 0.735499 / 270 * Nrj
 
-
+print('Potencia consumida pelas bombas de captação spf: ', Pc)        
+print('Potencia consumida pelas bombas de elevação: ', Pe) 
+print('Potencia consumida pelas bombas de transporte: ', Pt) 
 
 # 2. Restrições para cálculo da demanda contratada
 
-
-#   total de horas simuladas
-#tempo = duracao / 3600
-
-#   somatório da quantidade de bombas de captação de ponto superficial que estão conectados ao ETA 
-# verificar a quantidade de bomba que tenho entre os reservatórios físicos e o eta
-# posso verificar a partir da coluno Node1 e Node2 se eles estão inteligados pela bomba;
 
 # 3. Cálculo do volume de água nos reservatórios
 
@@ -217,4 +244,3 @@ print('Potencia consumida pelas bombas de captação superficial: ', Pc)
 
 
 # Teste com a biblioteca do EPANET
-
